@@ -14,19 +14,22 @@ public class CursorPreview
 {
 	public static void main(String[] args) throws Exception
 	{
-		final int cell = 40;
+		final int cell = 80;
 		final int[] picks = {0, 10, 20, 30, 40, 50};
 		CursorShape[] shapes = CursorShape.values();
 		RgbCursorEffect[] effects = RgbCursorEffect.values();
 		BufferedImage sheet = new BufferedImage(picks.length * cell * effects.length, shapes.length * cell, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = sheet.createGraphics();
+		// Half dark, half light background to judge contrast on both
 		g.setColor(new Color(70, 60, 45));
 		g.fillRect(0, 0, sheet.getWidth(), sheet.getHeight());
+		g.setColor(new Color(225, 215, 190));
+		g.fillRect(0, sheet.getHeight() / 2, sheet.getWidth(), sheet.getHeight() / 2);
 		for (int s = 0; s < shapes.length; s++)
 		{
 			for (int e = 0; e < effects.length; e++)
 			{
-				BufferedImage[] frames = CursorFrames.render(shapes[s], effects[e], 24, 1f, true, new Point());
+				BufferedImage[] frames = CursorFrames.render(shapes[s], effects[e], 24, 1f, true, 2, new Point());
 				for (int p = 0; p < picks.length; p++)
 				{
 					g.drawImage(frames[picks[p]], (e * picks.length + p) * cell + 4, s * cell + 4, null);
