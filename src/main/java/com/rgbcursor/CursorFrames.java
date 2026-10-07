@@ -34,12 +34,11 @@ final class CursorFrames
 	private static final double ARROW_HEIGHT = 16.6;
 	private static final double ARROW_WIDTH = 9.8;
 
-	private static final Color BORDER = new Color(10, 10, 10);
 	private static final Color SHADOW = new Color(0, 0, 0, 110);
 
 	/**
 	 * A cursor source split into a layer that gets recolored and a fixed layer drawn beneath it
-	 * (the arrow's border and drop shadow), so the border stays black instead of turning rainbow.
+	 * (the arrow's white border and drop shadow), so the border stays white instead of turning rainbow.
 	 */
 	private static final class Layers
 	{
@@ -206,7 +205,7 @@ final class CursorFrames
 		tx.scale(unit, unit);
 		final Shape outer = tx.createTransformedShape(arrow);
 
-		// The colored fill is the outline inset by the border width; the black border is the full outline beneath it,
+		// The colored fill is the outline inset by the border width; the white border is the full outline beneath it,
 		// traced with a hairline round stroke to soften the corners slightly like macOS does
 		Shape fill = outer;
 		if (outline)
@@ -219,7 +218,7 @@ final class CursorFrames
 
 		Layers layers = new Layers();
 
-		// Soft drop shadow of the whole silhouette, then the black border on top of it
+		// Soft drop shadow of the whole silhouette, then the white border on top of it
 		BufferedImage silhouette = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = antialiased(silhouette);
 		g.setColor(SHADOW);
@@ -231,7 +230,7 @@ final class CursorFrames
 		if (outline)
 		{
 			g = antialiased(layers.under);
-			g.setColor(BORDER);
+			g.setColor(Color.WHITE);
 			g.fill(outer);
 			g.setStroke(soften);
 			g.draw(outer);
