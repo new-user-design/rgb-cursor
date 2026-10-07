@@ -82,8 +82,8 @@ public interface RgbCursorConfig extends Config
 
 	@ConfigItem(
 		keyName = "outline",
-		name = "White border",
-		description = "Give the arrow a white border like the native macOS pointer",
+		name = "Black border",
+		description = "Give the arrow a thin black border so it stays visible on any background",
 		position = 5
 	)
 	default boolean outline()
