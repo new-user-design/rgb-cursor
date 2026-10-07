@@ -10,6 +10,7 @@ import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.Toolkit;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.awt.image.BaseMultiResolutionImage;
 import java.awt.image.BufferedImage;
@@ -27,11 +28,11 @@ final class CursorFrames
 {
 	static final int FRAME_COUNT = 60;
 
-	// macOS-style pointer outline, tip at (0, 0)
-	private static final double[] ARROW_X = {0, 0, 3.8, 6.4, 8.8, 6.3, 11.4};
-	private static final double[] ARROW_Y = {0, 16.2, 12.6, 18.4, 17.3, 11.6, 11.6};
-	private static final double ARROW_HEIGHT = 18.4;
-	private static final double ARROW_WIDTH = 11.4;
+	// Outer edge (border included) of the macOS pointer in points at its native 17pt height, tip at (0, 0)
+	private static final double[] ARROW_X = {0, 0, 3.0, 4.9, 7.8, 6.1, 9.8};
+	private static final double[] ARROW_Y = {0, 13.5, 11.4, 16.6, 16.0, 10.8, 10.8};
+	private static final double ARROW_HEIGHT = 16.6;
+	private static final double ARROW_WIDTH = 9.8;
 
 	private static final Color SHADOW = new Color(0, 0, 0, 110);
 
@@ -181,10 +182,10 @@ final class CursorFrames
 	private static Layers renderArrow(int size, boolean outline, int scale, Point hotspot)
 	{
 		// Geometry is laid out in 1x pixels, then everything is multiplied by scale so 1x and 2x line up exactly
-		final double border = outline ? Math.max(1.0, size / 14.0) : 0;
-		final double blur = Math.max(1.0, size / 16.0);
-		final double shadowDrop = Math.max(1.0, size / 20.0);
-		final int pad = (int) Math.ceil(border + blur) + 1;
+		final double border = outline ? size / 17.0 : 0;
+		final double blur = size / 16.0;
+		final double shadowDrop = size / 20.0;
+		final int pad = (int) Math.ceil(blur * 2) + 1;
 		final double unit = size / ARROW_HEIGHT;
 		final int w1 = (int) Math.ceil(ARROW_WIDTH * unit) + pad * 2;
 		final int h1 = size + pad * 2 + (int) Math.ceil(shadowDrop);
@@ -202,8 +203,18 @@ final class CursorFrames
 		tx.scale(scale, scale);
 		tx.translate(pad, pad);
 		tx.scale(unit, unit);
-		Shape shape = tx.createTransformedShape(arrow);
-		BasicStroke borderStroke = new BasicStroke((float) (border * 2 * scale), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+		final Shape outer = tx.createTransformedShape(arrow);
+
+		// The colored fill is the outline inset by the border width; the white border is the full outline beneath it,
+		// traced with a hairline round stroke to soften the corners slightly like macOS does
+		Shape fill = outer;
+		if (outline)
+		{
+			Area inset = new Area(outer);
+			inset.subtract(new Area(new BasicStroke((float) (border * 2 * scale)).createStrokedShape(outer)));
+			fill = inset;
+		}
+		final BasicStroke soften = new BasicStroke((float) (0.6 * scale), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 
 		Layers layers = new Layers();
 
@@ -212,30 +223,30 @@ final class CursorFrames
 		Graphics2D g = antialiased(silhouette);
 		g.setColor(SHADOW);
 		g.translate(0, shadowDrop * scale);
-		g.fill(shape);
-		if (outline)
-		{
-			g.setStroke(borderStroke);
-			g.draw(shape);
-		}
+		g.fill(outer);
 		g.dispose();
 		layers.under = blur(silhouette, (int) Math.round(blur * scale));
 
-		g = antialiased(layers.under);
-		g.setColor(Color.WHITE);
-		g.fill(shape);
 		if (outline)
 		{
-			g.setStroke(borderStroke);
-			g.draw(shape);
+			g = antialiased(layers.under);
+			g.setColor(Color.WHITE);
+			g.fill(outer);
+			g.setStroke(soften);
+			g.draw(outer);
+			g.dispose();
 		}
-		g.dispose();
 
 		// The fill is drawn white so the brightness-based recolor turns it fully saturated
 		layers.tint = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 		g = antialiased(layers.tint);
 		g.setColor(Color.WHITE);
-		g.fill(shape);
+		g.fill(fill);
+		if (!outline)
+		{
+			g.setStroke(soften);
+			g.draw(fill);
+		}
 		g.dispose();
 
 		hotspot.setLocation(pad, pad);

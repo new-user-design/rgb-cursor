@@ -67,17 +67,17 @@ public interface RgbCursorConfig extends Config
 		return 100;
 	}
 
-	@Range(min = 12, max = 64)
+	@Range(min = 12, max = 48)
 	@Units(Units.PIXELS)
 	@ConfigItem(
-		keyName = "size",
-		name = "Size",
-		description = "Height of the arrow shape (image shapes keep their own size)",
+		keyName = "arrowSize",
+		name = "Arrow size",
+		description = "Height of the arrow; 17 matches the default macOS pointer (image shapes keep their own size)",
 		position = 4
 	)
-	default int size()
+	default int arrowSize()
 	{
-		return 24;
+		return 17;
 	}
 
 	@ConfigItem(
