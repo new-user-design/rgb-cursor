@@ -38,7 +38,7 @@ final class CursorFrames
 
 	/**
 	 * A cursor source split into a layer that gets recolored and a fixed layer drawn beneath it
-	 * (the arrow's white border and drop shadow), so the border stays white instead of turning rainbow.
+	 * (the arrow's border and drop shadow), so the border keeps its color instead of turning rainbow.
 	 */
 	private static final class Layers
 	{
@@ -50,13 +50,13 @@ final class CursorFrames
 	{
 	}
 
-	static Cursor[] build(CursorShape shape, RgbCursorEffect effect, int size, float saturation, boolean outline)
+	static Cursor[] build(CursorShape shape, RgbCursorEffect effect, int size, float saturation, boolean outline, Color borderColor)
 	{
 		final Toolkit toolkit = Toolkit.getDefaultToolkit();
 		final Point hotspot = new Point();
-		final BufferedImage[] lo = render(shape, effect, size, saturation, outline, 1, hotspot);
+		final BufferedImage[] lo = render(shape, effect, size, saturation, outline, borderColor, 1, hotspot);
 		// A 2x set lets HiDPI (Retina) screens show a sharp cursor instead of an upscaled one
-		final BufferedImage[] hi = render(shape, effect, size, saturation, outline, 2, new Point());
+		final BufferedImage[] hi = render(shape, effect, size, saturation, outline, borderColor, 2, new Point());
 
 		final Cursor[] frames = new Cursor[FRAME_COUNT];
 		for (int f = 0; f < FRAME_COUNT; f++)
@@ -74,10 +74,10 @@ final class CursorFrames
 	/**
 	 * Renders the recolored frames at the given pixel scale; {@code hotspot} receives the click point in 1x pixels.
 	 */
-	static BufferedImage[] render(CursorShape shape, RgbCursorEffect effect, int size, float saturation, boolean outline, int scale, Point hotspot)
+	static BufferedImage[] render(CursorShape shape, RgbCursorEffect effect, int size, float saturation, boolean outline, Color borderColor, int scale, Point hotspot)
 	{
 		final Layers layers = shape.getResource() == null
-			? renderArrow(size, outline, scale, hotspot)
+			? renderArrow(size, outline, borderColor, scale, hotspot)
 			: loadImage(shape.getResource(), scale);
 		final BufferedImage source = layers.tint;
 		final int w = source.getWidth();
@@ -179,7 +179,7 @@ final class CursorFrames
 		return layers;
 	}
 
-	private static Layers renderArrow(int size, boolean outline, int scale, Point hotspot)
+	private static Layers renderArrow(int size, boolean outline, Color borderColor, int scale, Point hotspot)
 	{
 		// Geometry is laid out in 1x pixels, then everything is multiplied by scale so 1x and 2x line up exactly
 		final double border = outline ? size / 17.0 : 0;
@@ -205,7 +205,7 @@ final class CursorFrames
 		tx.scale(unit, unit);
 		final Shape outer = tx.createTransformedShape(arrow);
 
-		// The colored fill is the outline inset by the border width; the white border is the full outline beneath it,
+		// The colored fill is the outline inset by the border width; the border is the full outline beneath it,
 		// traced with a hairline round stroke to soften the corners slightly like macOS does
 		Shape fill = outer;
 		if (outline)
@@ -218,7 +218,7 @@ final class CursorFrames
 
 		Layers layers = new Layers();
 
-		// Soft drop shadow of the whole silhouette, then the white border on top of it
+		// Soft drop shadow of the whole silhouette, then the border on top of it
 		BufferedImage silhouette = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = antialiased(silhouette);
 		g.setColor(SHADOW);
@@ -230,7 +230,7 @@ final class CursorFrames
 		if (outline)
 		{
 			g = antialiased(layers.under);
-			g.setColor(Color.WHITE);
+			g.setColor(borderColor);
 			g.fill(outer);
 			g.setStroke(soften);
 			g.draw(outer);

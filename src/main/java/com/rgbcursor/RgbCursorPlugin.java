@@ -37,7 +37,7 @@ public class RgbCursorPlugin extends Plugin
 	private RgbCursorConfig config;
 
 	private static final Set<String> CURSOR_KEYS = ImmutableSet.of(
-		"cursorEnabled", "shape", "effect", "cycleSeconds", "saturation", "arrowSize", "outline");
+		"cursorEnabled", "shape", "effect", "cycleSeconds", "saturation", "arrowSize", "outline", "borderColor");
 
 	private final long startNanos = System.nanoTime();
 
@@ -87,7 +87,7 @@ public class RgbCursorPlugin extends Plugin
 			return;
 		}
 
-		frames = CursorFrames.build(config.shape(), config.effect(), config.arrowSize(), config.saturation() / 100f, config.outline());
+		frames = CursorFrames.build(config.shape(), config.effect(), config.arrowSize(), config.saturation() / 100f, config.outline(), config.borderColor().getColor());
 
 		int delay = Math.max(16, config.cycleSeconds() * 1000 / CursorFrames.FRAME_COUNT);
 		timer = new Timer(delay, e -> tick());
