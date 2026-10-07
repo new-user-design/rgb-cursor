@@ -87,7 +87,7 @@ public class RgbCursorPlugin extends Plugin
 			return;
 		}
 
-		frames = CursorFrames.build(config.shape(), config.effect(), config.arrowSize(), config.saturation() / 100f, config.outline(), config.borderColor().getColor());
+		frames = CursorFrames.build(config.shape(), config.effect(), config.arrowSize(), config.saturation() / 100f, config.outline(), config.borderColor());
 
 		int delay = Math.max(16, config.cycleSeconds() * 1000 / CursorFrames.FRAME_COUNT);
 		timer = new Timer(delay, e -> tick());

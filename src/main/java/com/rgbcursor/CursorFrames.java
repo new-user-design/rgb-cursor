@@ -50,7 +50,7 @@ final class CursorFrames
 	{
 	}
 
-	static Cursor[] build(CursorShape shape, RgbCursorEffect effect, int size, float saturation, boolean outline, Color borderColor)
+	static Cursor[] build(CursorShape shape, RgbCursorEffect effect, int size, float saturation, boolean outline, BorderColor borderColor)
 	{
 		final Toolkit toolkit = Toolkit.getDefaultToolkit();
 		final Point hotspot = new Point();
@@ -74,7 +74,7 @@ final class CursorFrames
 	/**
 	 * Renders the recolored frames at the given pixel scale; {@code hotspot} receives the click point in 1x pixels.
 	 */
-	static BufferedImage[] render(CursorShape shape, RgbCursorEffect effect, int size, float saturation, boolean outline, Color borderColor, int scale, Point hotspot)
+	static BufferedImage[] render(CursorShape shape, RgbCursorEffect effect, int size, float saturation, boolean outline, BorderColor borderColor, int scale, Point hotspot)
 	{
 		final Layers layers = shape.getResource() == null
 			? renderArrow(size, outline, borderColor, scale, hotspot)
@@ -179,7 +179,7 @@ final class CursorFrames
 		return layers;
 	}
 
-	private static Layers renderArrow(int size, boolean outline, Color borderColor, int scale, Point hotspot)
+	private static Layers renderArrow(int size, boolean outline, BorderColor borderColor, int scale, Point hotspot)
 	{
 		// Geometry is laid out in 1x pixels, then everything is multiplied by scale so 1x and 2x line up exactly
 		final double border = outline ? size / 17.0 : 0;
@@ -219,21 +219,33 @@ final class CursorFrames
 		Layers layers = new Layers();
 
 		// Soft drop shadow of the whole silhouette, then the border on top of it
-		BufferedImage silhouette = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g = antialiased(silhouette);
-		g.setColor(SHADOW);
-		g.translate(0, shadowDrop * scale);
-		g.fill(outer);
-		g.dispose();
-		layers.under = blur(silhouette, (int) Math.round(blur * scale));
+		final boolean shadow = !outline || borderColor.isShadow();
+		Graphics2D g;
+		if (shadow)
+		{
+			BufferedImage silhouette = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+			g = antialiased(silhouette);
+			g.setColor(SHADOW);
+			g.translate(0, shadowDrop * scale);
+			g.fill(outer);
+			g.dispose();
+			layers.under = blur(silhouette, (int) Math.round(blur * scale));
+		}
+		else
+		{
+			layers.under = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+		}
 
 		if (outline)
 		{
 			g = antialiased(layers.under);
-			g.setColor(borderColor);
+			g.setColor(borderColor.getColor());
 			g.fill(outer);
-			g.setStroke(soften);
-			g.draw(outer);
+			if (borderColor.isShadow())
+			{
+				g.setStroke(soften);
+				g.draw(outer);
+			}
 			g.dispose();
 		}
 
