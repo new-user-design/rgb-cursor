@@ -46,11 +46,6 @@ class RgbTrailOverlay extends Overlay
 		setPriority(Overlay.PRIORITY_HIGHEST);
 	}
 
-	void clear()
-	{
-		points.clear();
-	}
-
 	@Override
 	public Dimension render(Graphics2D g)
 	{

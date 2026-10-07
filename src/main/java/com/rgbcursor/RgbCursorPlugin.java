@@ -1,7 +1,9 @@
 package com.rgbcursor;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Provides;
 import java.awt.Cursor;
+import java.util.Set;
 import javax.inject.Inject;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
@@ -34,6 +36,9 @@ public class RgbCursorPlugin extends Plugin
 	@Inject
 	private RgbCursorConfig config;
 
+	private static final Set<String> CURSOR_KEYS = ImmutableSet.of(
+		"cursorEnabled", "effect", "cycleSeconds", "saturation", "size", "outline");
+
 	private final long startNanos = System.nanoTime();
 
 	// Swing state below is only touched on the event dispatch thread
@@ -52,14 +57,14 @@ public class RgbCursorPlugin extends Plugin
 	protected void shutDown()
 	{
 		overlayManager.remove(trailOverlay);
-		trailOverlay.clear();
 		SwingUtilities.invokeLater(this::stopCursor);
 	}
 
 	@Subscribe
 	public void onConfigChanged(ConfigChanged event)
 	{
-		if (RgbCursorConfig.GROUP.equals(event.getGroup()))
+		// Trail settings are read live each frame; only cursor settings need new frames
+		if (RgbCursorConfig.GROUP.equals(event.getGroup()) && CURSOR_KEYS.contains(event.getKey()))
 		{
 			SwingUtilities.invokeLater(this::rebuildCursor);
 		}
