@@ -39,10 +39,6 @@ tasks.register('run', JavaExec) {
 	mainClass = pluginMainClass
 
 	jvmArgs "-ea"
-	// macOS: ClientUI needs the Apple full-screen API (RuneLite.app passes the same flags)
-	if (System.getProperty("os.name").toLowerCase().contains("mac")) {
-		jvmArgs "--add-opens=java.desktop/com.apple.eawt=ALL-UNNAMED", "--add-exports=java.desktop/com.apple.eawt=ALL-UNNAMED"
-	}
 	args "--developer-mode", "--debug"
 }
 
