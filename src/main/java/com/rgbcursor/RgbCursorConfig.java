@@ -20,10 +20,21 @@ public interface RgbCursorConfig extends Config
 	String trailSection = "trail";
 
 	@ConfigItem(
+		keyName = "shape",
+		name = "Shape",
+		description = "Which cursor to color; image shapes are recolored by their brightness",
+		position = 0
+	)
+	default CursorShape shape()
+	{
+		return CursorShape.ARROW;
+	}
+
+	@ConfigItem(
 		keyName = "effect",
 		name = "Effect",
 		description = "How the cursor colors animate",
-		position = 0
+		position = 1
 	)
 	default RgbCursorEffect effect()
 	{
@@ -36,7 +47,7 @@ public interface RgbCursorConfig extends Config
 		keyName = "cycleSeconds",
 		name = "Cycle time",
 		description = "Seconds for one full trip around the color wheel",
-		position = 1
+		position = 2
 	)
 	default int cycleSeconds()
 	{
@@ -49,7 +60,7 @@ public interface RgbCursorConfig extends Config
 		keyName = "saturation",
 		name = "Saturation",
 		description = "Color intensity; 0% is plain white",
-		position = 2
+		position = 3
 	)
 	default int saturation()
 	{
@@ -61,8 +72,8 @@ public interface RgbCursorConfig extends Config
 	@ConfigItem(
 		keyName = "size",
 		name = "Size",
-		description = "Height of the cursor arrow",
-		position = 3
+		description = "Height of the arrow shape (image shapes keep their own size)",
+		position = 4
 	)
 	default int size()
 	{
@@ -72,8 +83,8 @@ public interface RgbCursorConfig extends Config
 	@ConfigItem(
 		keyName = "outline",
 		name = "Dark outline",
-		description = "Draw a dark outline so the cursor stays visible on bright backgrounds",
-		position = 4
+		description = "Draw a dark outline around the arrow so it stays visible on bright backgrounds",
+		position = 5
 	)
 	default boolean outline()
 	{
