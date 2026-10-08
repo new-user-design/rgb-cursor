@@ -8,6 +8,8 @@ import javax.inject.Inject;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import lombok.extern.slf4j.Slf4j;
+import net.runelite.api.events.BeforeRender;
+import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
@@ -20,7 +22,7 @@ import net.runelite.client.ui.overlay.OverlayManager;
 @PluginDescriptor(
 	name = "RGB Cursor",
 	description = "Animated rainbow mouse cursor and trail. Disable the Custom Cursor plugin while using this.",
-	tags = {"cursor", "rgb", "rainbow", "mouse", "trail"}
+	tags = {"cursor", "rgb", "rainbow", "mouse", "trail", "click", "cross"}
 )
 public class RgbCursorPlugin extends Plugin
 {
@@ -32,6 +34,15 @@ public class RgbCursorPlugin extends Plugin
 
 	@Inject
 	private RgbTrailOverlay trailOverlay;
+
+	@Inject
+	private RgbClickOverlay clickOverlay;
+
+	@Inject
+	private ClickCrossRecolor crossRecolor;
+
+	@Inject
+	private ClientThread clientThread;
 
 	@Inject
 	private RgbCursorConfig config;
@@ -50,6 +61,7 @@ public class RgbCursorPlugin extends Plugin
 	protected void startUp()
 	{
 		overlayManager.add(trailOverlay);
+		overlayManager.add(clickOverlay);
 		SwingUtilities.invokeLater(this::rebuildCursor);
 	}
 
@@ -57,7 +69,16 @@ public class RgbCursorPlugin extends Plugin
 	protected void shutDown()
 	{
 		overlayManager.remove(trailOverlay);
+		overlayManager.remove(clickOverlay);
+		// Hand the game back its original click crosses
+		clientThread.invoke(crossRecolor::restore);
 		SwingUtilities.invokeLater(this::stopCursor);
+	}
+
+	@Subscribe
+	public void onBeforeRender(BeforeRender event)
+	{
+		crossRecolor.update();
 	}
 
 	@Subscribe

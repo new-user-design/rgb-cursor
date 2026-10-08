@@ -21,6 +21,13 @@ public interface RgbCursorConfig extends Config
 	)
 	String trailSection = "trail";
 
+	@ConfigSection(
+		name = "Click effects",
+		description = "Color the game's click crosses and add an effect where you click",
+		position = 20
+	)
+	String clickSection = "clicks";
+
 	@ConfigItem(
 		keyName = "shape",
 		name = "Shape",
@@ -203,5 +210,106 @@ public interface RgbCursorConfig extends Config
 	default int trailRainbowSpread()
 	{
 		return 60;
+	}
+
+	@ConfigItem(
+		keyName = "crossStyle",
+		name = "Click crosses",
+		description = "Recolor the game's yellow (walk) and red (interact) click crosses. Walk and interact always stay different colors",
+		position = 0,
+		section = clickSection
+	)
+	default CrossStyle crossStyle()
+	{
+		return CrossStyle.OFF;
+	}
+
+	@ConfigItem(
+		keyName = "walkCrossColor",
+		name = "Walk cross color",
+		description = "Color of the walk (normally yellow) cross when Click crosses is set to Custom colors",
+		position = 1,
+		section = clickSection
+	)
+	default Color walkCrossColor()
+	{
+		return new Color(0, 220, 255);
+	}
+
+	@ConfigItem(
+		keyName = "interactCrossColor",
+		name = "Interact cross color",
+		description = "Color of the interact (normally red) cross when Click crosses is set to Custom colors",
+		position = 2,
+		section = clickSection
+	)
+	default Color interactCrossColor()
+	{
+		return new Color(255, 0, 200);
+	}
+
+	@ConfigItem(
+		keyName = "clickEffect",
+		name = "Click effect",
+		description = "An extra effect that plays wherever you click",
+		position = 3,
+		section = clickSection
+	)
+	default ClickEffectStyle clickEffect()
+	{
+		return ClickEffectStyle.OFF;
+	}
+
+	@Range(min = 8, max = 80)
+	@Units(Units.PIXELS)
+	@ConfigItem(
+		keyName = "clickSize",
+		name = "Effect size",
+		description = "How far the click effect spreads",
+		position = 4,
+		section = clickSection
+	)
+	default int clickSize()
+	{
+		return 24;
+	}
+
+	@Range(min = 100, max = 2000)
+	@Units(Units.MILLISECONDS)
+	@ConfigItem(
+		keyName = "clickDuration",
+		name = "Effect duration",
+		description = "How long each click effect lasts",
+		position = 5,
+		section = clickSection
+	)
+	default int clickDuration()
+	{
+		return 500;
+	}
+
+	@ConfigItem(
+		keyName = "clickRainbow",
+		name = "Rainbow effect",
+		description = "Color the click effect with the rainbow; turn off to use the effect color",
+		position = 6,
+		section = clickSection
+	)
+	default boolean clickRainbow()
+	{
+		return true;
+	}
+
+	@Alpha
+	@ConfigItem(
+		keyName = "clickColor",
+		name = "Effect color",
+		description = "Click effect color when Rainbow effect is off",
+		position = 7,
+		section = clickSection
+	)
+	default Color clickColor()
+	{
+		return Color.WHITE;
 	}
 }
