@@ -1,5 +1,7 @@
 package com.rgbcursor;
 
+import java.awt.Color;
+import net.runelite.client.config.Alpha;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
@@ -33,12 +35,23 @@ public interface RgbCursorConfig extends Config
 	@ConfigItem(
 		keyName = "effect",
 		name = "Effect",
-		description = "How the cursor colors animate",
+		description = "How the cursor colors animate; None keeps image shapes in their original colors and draws the arrow in the static color",
 		position = 1
 	)
 	default RgbCursorEffect effect()
 	{
 		return RgbCursorEffect.RAINBOW;
+	}
+
+	@ConfigItem(
+		keyName = "staticColor",
+		name = "Static arrow color",
+		description = "Arrow fill color when the effect is None",
+		position = 2
+	)
+	default Color staticColor()
+	{
+		return Color.BLACK;
 	}
 
 	@Range(min = 1, max = 30)
@@ -47,7 +60,7 @@ public interface RgbCursorConfig extends Config
 		keyName = "cycleSeconds",
 		name = "Cycle time",
 		description = "Seconds for one full trip around the color wheel",
-		position = 2
+		position = 3
 	)
 	default int cycleSeconds()
 	{
@@ -60,7 +73,7 @@ public interface RgbCursorConfig extends Config
 		keyName = "saturation",
 		name = "Saturation",
 		description = "Color intensity; 0% is plain white",
-		position = 3
+		position = 4
 	)
 	default int saturation()
 	{
@@ -73,7 +86,7 @@ public interface RgbCursorConfig extends Config
 		keyName = "arrowSize",
 		name = "Arrow size",
 		description = "Height of the arrow; 17 matches the default macOS pointer (image shapes keep their own size)",
-		position = 4
+		position = 5
 	)
 	default int arrowSize()
 	{
@@ -84,7 +97,7 @@ public interface RgbCursorConfig extends Config
 		keyName = "outline",
 		name = "Border",
 		description = "Give the arrow a thin border like the native macOS pointer",
-		position = 5
+		position = 6
 	)
 	default boolean outline()
 	{
@@ -95,7 +108,7 @@ public interface RgbCursorConfig extends Config
 		keyName = "borderColor",
 		name = "Border color",
 		description = "Color of the arrow's border",
-		position = 6
+		position = 7
 	)
 	default BorderColor borderColor()
 	{
@@ -128,10 +141,35 @@ public interface RgbCursorConfig extends Config
 	@Range(min = 50, max = 2000)
 	@Units(Units.MILLISECONDS)
 	@ConfigItem(
+		keyName = "trailRainbow",
+		name = "Rainbow trail",
+		description = "Color the trail with the rainbow; turn off to use the trail color instead",
+		position = 1,
+		section = trailSection
+	)
+	default boolean trailRainbow()
+	{
+		return true;
+	}
+
+	@Alpha
+	@ConfigItem(
+		keyName = "trailColor",
+		name = "Trail color",
+		description = "Trail color when Rainbow trail is off",
+		position = 2,
+		section = trailSection
+	)
+	default Color trailColor()
+	{
+		return Color.WHITE;
+	}
+
+	@ConfigItem(
 		keyName = "trailDuration",
 		name = "Trail length",
 		description = "How long each part of the trail lingers before fading out",
-		position = 1,
+		position = 3,
 		section = trailSection
 	)
 	default int trailDuration()
@@ -145,7 +183,7 @@ public interface RgbCursorConfig extends Config
 		keyName = "trailWidth",
 		name = "Trail width",
 		description = "Thickness of the trail at the cursor end",
-		position = 2,
+		position = 4,
 		section = trailSection
 	)
 	default int trailWidth()
@@ -159,7 +197,7 @@ public interface RgbCursorConfig extends Config
 		keyName = "trailRainbowSpread",
 		name = "Rainbow spread",
 		description = "How much of the color wheel the trail spans from head to tail",
-		position = 3,
+		position = 5,
 		section = trailSection
 	)
 	default int trailRainbowSpread()

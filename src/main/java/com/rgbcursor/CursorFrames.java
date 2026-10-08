@@ -50,16 +50,16 @@ final class CursorFrames
 	{
 	}
 
-	static Cursor[] build(CursorShape shape, RgbCursorEffect effect, int size, float saturation, boolean outline, BorderColor borderColor)
+	static Cursor[] build(CursorShape shape, RgbCursorEffect effect, Color staticColor, int size, float saturation, boolean outline, BorderColor borderColor)
 	{
 		final Toolkit toolkit = Toolkit.getDefaultToolkit();
 		final Point hotspot = new Point();
-		final BufferedImage[] lo = render(shape, effect, size, saturation, outline, borderColor, 1, hotspot);
+		final BufferedImage[] lo = render(shape, effect, staticColor, size, saturation, outline, borderColor, 1, hotspot);
 		// A 2x set lets HiDPI (Retina) screens show a sharp cursor instead of an upscaled one
-		final BufferedImage[] hi = render(shape, effect, size, saturation, outline, borderColor, 2, new Point());
+		final BufferedImage[] hi = render(shape, effect, staticColor, size, saturation, outline, borderColor, 2, new Point());
 
-		final Cursor[] frames = new Cursor[FRAME_COUNT];
-		for (int f = 0; f < FRAME_COUNT; f++)
+		final Cursor[] frames = new Cursor[lo.length];
+		for (int f = 0; f < lo.length; f++)
 		{
 			// Place on a canvas of the platform's preferred cursor size so it isn't rescaled badly
 			Dimension best = toolkit.getBestCursorSize(lo[f].getWidth(), lo[f].getHeight());
@@ -73,8 +73,9 @@ final class CursorFrames
 
 	/**
 	 * Renders the recolored frames at the given pixel scale; {@code hotspot} receives the click point in 1x pixels.
+	 * With no effect there is a single frame: image shapes keep their own colors and the arrow is filled with {@code staticColor}.
 	 */
-	static BufferedImage[] render(CursorShape shape, RgbCursorEffect effect, int size, float saturation, boolean outline, BorderColor borderColor, int scale, Point hotspot)
+	static BufferedImage[] render(CursorShape shape, RgbCursorEffect effect, Color staticColor, int size, float saturation, boolean outline, BorderColor borderColor, int scale, Point hotspot)
 	{
 		final Layers layers = shape.getResource() == null
 			? renderArrow(size, outline, borderColor, scale, hotspot)
@@ -108,9 +109,11 @@ final class CursorFrames
 			}
 		}
 
-		final BufferedImage[] frames = new BufferedImage[FRAME_COUNT];
+		final boolean animated = effect != RgbCursorEffect.NONE;
+		final boolean arrow = shape.getResource() == null;
+		final BufferedImage[] frames = new BufferedImage[animated ? FRAME_COUNT : 1];
 
-		for (int f = 0; f < FRAME_COUNT; f++)
+		for (int f = 0; f < frames.length; f++)
 		{
 			final float phase = (float) f / FRAME_COUNT;
 			float brightness = 1f;
@@ -129,6 +132,13 @@ final class CursorFrames
 					int alpha = srcPx[i] >>> 24;
 					if (alpha == 0)
 					{
+						continue;
+					}
+
+					if (!animated)
+					{
+						// The arrow's fill coverage is in the alpha channel, so it takes the static color directly
+						px[i] = arrow ? (alpha << 24) | (staticColor.getRGB() & 0xFFFFFF) : srcPx[i];
 						continue;
 					}
 

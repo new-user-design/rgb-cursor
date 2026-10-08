@@ -84,6 +84,9 @@ class RgbTrailOverlay extends Overlay
 		final float spread = config.trailRainbowSpread() / 100f;
 		final float saturation = config.saturation() / 100f;
 		final int width = config.trailWidth();
+		final boolean rainbow = config.trailRainbow();
+		final Color solid = config.trailColor();
+		final int baseAlpha = rainbow ? 255 : solid.getAlpha();
 
 		Iterator<TrailPoint> it = points.iterator();
 		TrailPoint prev = it.next();
@@ -94,8 +97,8 @@ class RgbTrailOverlay extends Overlay
 			float age = Math.min(1f, (float) (now - cur.time) / lifetime);
 			float life = 1f - age;
 
-			int rgb = Color.HSBtoRGB(headHue - spread * age, saturation, 1f) & 0xFFFFFF;
-			int alpha = Math.round(255 * life);
+			int rgb = rainbow ? Color.HSBtoRGB(headHue - spread * age, saturation, 1f) & 0xFFFFFF : solid.getRGB() & 0xFFFFFF;
+			int alpha = Math.round(baseAlpha * life);
 			g.setColor(new Color((alpha << 24) | rgb, true));
 			g.setStroke(new BasicStroke(Math.max(1f, width * life), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 			g.drawLine(prev.x, prev.y, cur.x, cur.y);

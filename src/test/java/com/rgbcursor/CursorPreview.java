@@ -29,7 +29,7 @@ public class CursorPreview
 		{
 			for (int e = 0; e < effects.length; e++)
 			{
-				BufferedImage[] frames = CursorFrames.render(shapes[s], effects[e], 17, 1f, true, BorderColor.WHITE, 2, new Point());
+				BufferedImage[] frames = CursorFrames.render(shapes[s], effects[e], java.awt.Color.BLACK, 17, 1f, true, BorderColor.WHITE, 2, new Point());
 				for (int p = 0; p < picks.length; p++)
 				{
 					g.drawImage(frames[picks[p]], (e * picks.length + p) * cell + 4, s * cell + 4, null);

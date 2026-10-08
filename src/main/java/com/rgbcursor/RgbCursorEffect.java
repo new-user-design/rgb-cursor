@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum RgbCursorEffect
 {
+	NONE("None (static)"),
 	RAINBOW("Rainbow cycle"),
 	WAVE("Gradient wave"),
 	BREATHE("Breathing rainbow");
