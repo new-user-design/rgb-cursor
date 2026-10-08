@@ -117,8 +117,8 @@ public interface RgbCursorConfig extends Config
 
 	@ConfigItem(
 		keyName = "cursorEnabled",
-		name = "Color cursor",
-		description = "Replace the mouse pointer with an animated RGB arrow",
+		name = "Custom cursor",
+		description = "Use this plugin's cursor. Turn off to keep your normal system cursor (the trail still works)",
 		position = -1
 	)
 	default boolean cursorEnabled()
