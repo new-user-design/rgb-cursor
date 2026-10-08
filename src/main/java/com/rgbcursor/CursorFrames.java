@@ -78,7 +78,7 @@ final class CursorFrames
 	{
 		final Layers layers = shape.getResource() == null
 			? renderArrow(size, outline, borderColor, scale, hotspot)
-			: loadImage(shape.getResource(), scale);
+			: loadImage(shape, scale, hotspot);
 		final BufferedImage source = layers.tint;
 		final int w = source.getWidth();
 		final int h = source.getHeight();
@@ -164,9 +164,12 @@ final class CursorFrames
 		return canvas;
 	}
 
-	private static Layers loadImage(String resource, int scale)
+	private static Layers loadImage(CursorShape shape, int scale, Point hotspot)
 	{
-		BufferedImage img = ImageUtil.loadImageResource(CustomCursorPlugin.class, resource);
+		BufferedImage img = shape.isCore()
+			? ImageUtil.loadImageResource(CustomCursorPlugin.class, shape.getResource())
+			: ImageUtil.loadImageResource(CursorFrames.class, "cursors/" + shape.getResource());
+		hotspot.setLocation(shape.getHotspotX(), shape.getHotspotY());
 		// Nearest-neighbour upscale keeps the pixel-art sprites crisp at 2x
 		BufferedImage argb = new BufferedImage(img.getWidth() * scale, img.getHeight() * scale, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = argb.createGraphics();
